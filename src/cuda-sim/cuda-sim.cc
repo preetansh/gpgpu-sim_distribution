@@ -2649,7 +2649,7 @@ void functionalCoreSim::executeWarp(unsigned i, bool &allAtBarrier,
   printf("PREETANSH functional execute \n");
   if (!m_warpAtBarrier[i] && m_liveThreadCount[i] != 0) {
     warp_inst_t inst = getExecuteWarp(i);
-    int spin_state = 0;
+    spin_state_t spin_state = NOT_SPINNING;
     execute_warp_inst_t(inst, spin_state, i);
     if (inst.isatomic()) inst.do_atomic(true);
     if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP)

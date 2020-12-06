@@ -1175,7 +1175,7 @@ void simt_stack::update(simt_mask_t &thread_done, addr_vector_t &next_pc,
   }
 }
 
-void core_t::execute_warp_inst_t(warp_inst_t &inst, int &spin_state, unsigned warpId) {
+void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, unsigned warpId) {
   bool found_spin = true;
   for (unsigned t = 0; t < m_warp_size; t++) {
     if (inst.active(t)) {

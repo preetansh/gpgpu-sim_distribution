@@ -985,7 +985,7 @@ void shader_core_ctx::fetch() {
 
 void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst) {
   printf("PREETANSH shader core \n");
-  int spin_state = 0;
+  spin_state_t spin_state = NOT_SPINNING;
   execute_warp_inst_t(inst, spin_state);
   if (inst.is_load() || inst.is_store()) {
     inst.generate_mem_accesses();

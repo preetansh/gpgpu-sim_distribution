@@ -991,6 +991,8 @@ enum divergence_support_t { POST_DOMINATOR = 1, NUM_SIMD_MODEL };
 
 const unsigned MAX_ACCESSES_PER_INSN_PER_THREAD = 8;
 
+enum spin_state_t { NOT_SPINNING = 0, SPINNING = 1 };
+
 class warp_inst_t : public inst_t {
  public:
   // constructors
@@ -1246,7 +1248,7 @@ class core_t {
   class gpgpu_sim *get_gpu() {
     return m_gpu;
   }
-  void execute_warp_inst_t(warp_inst_t &inst, int &spin_state, unsigned warpId = (unsigned)-1);
+  void execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, unsigned warpId = (unsigned)-1);
   bool ptx_thread_done(unsigned hw_thread_id) const;
   virtual void updateSIMTStack(unsigned warpId, warp_inst_t *inst);
   void initilizeSIMTStack(unsigned warp_count, unsigned warps_size);
