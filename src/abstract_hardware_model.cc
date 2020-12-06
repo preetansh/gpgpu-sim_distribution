@@ -1199,7 +1199,9 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, un
   if (found_spin) {
     // TODO: Update core about backoff
     printf("PREETANSH WARP SPIN: %u\n", warpId);
-    spin_state = 1;
+    spin_state = SPINNING;
+  } else {
+    spin_state = NOT_SPINNING;
   }
 }
 

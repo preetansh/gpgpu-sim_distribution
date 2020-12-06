@@ -121,6 +121,9 @@ class shd_warp_t {
     // Jin: cdp support
     m_cdp_latency = 0;
     m_cdp_dummy = false;
+
+    // reset backoff
+    m_backoff_remaining = 0;
   }
   void init(address_type start_pc, unsigned cta_id, unsigned wid,
             const std::bitset<MAX_WARP_SIZE> &active,
@@ -138,6 +141,9 @@ class shd_warp_t {
     // Jin: cdp support
     m_cdp_latency = 0;
     m_cdp_dummy = false;
+
+    // reset backoff
+    m_backoff_remaining = 0;
   }
 
   bool functional_done() const;
@@ -238,6 +244,30 @@ class shd_warp_t {
   unsigned get_dynamic_warp_id() const { return m_dynamic_warp_id; }
   unsigned get_warp_id() const { return m_warp_id; }
 
+  // Does warp have remaining backoff period
+  bool is_backed_off() {
+    return m_backoff_remaining > 0;
+  }
+
+  // Reduce remaining backoff
+  void reduce_back_off(unsigned reduction) {
+    if (m_backoff_remaining >= reduction) {
+      m_backoff_remaining -= reduction;
+    } else {
+      m_backoff_remaining = 0;
+    }
+  }
+
+  // Get remaining backoff
+  unsigned get_back_off() {
+    return m_backoff_remaining;
+  }
+
+  // Set remaining backoff
+  void set_back_off(unsigned delay) {
+    m_backoff_remaining = delay;
+  }  
+
   class shader_core_ctx * get_shader() { return m_shader; }
  private:
   static const unsigned IBUFFER_SIZE = 2;
@@ -277,6 +307,9 @@ class shd_warp_t {
   unsigned m_stores_outstanding;  // number of store requests sent but not yet
                                   // acknowledged
   unsigned m_inst_in_pipeline;
+
+  // back-off delay
+  unsigned m_backoff_remaining;
 
   // Jin: cdp support
  public:
@@ -2147,7 +2180,7 @@ class shader_core_ctx : public core_t {
                           kernel_info_t &kernel);
   virtual void checkExecutionStatusAndUpdate(warp_inst_t &inst, unsigned t,
                                              unsigned tid) = 0;
-  virtual void func_exec_inst(warp_inst_t &inst) = 0;
+  virtual void func_exec_inst(warp_inst_t &inst, spin_state_t &spin_state) = 0;
 
   virtual unsigned sim_init_thread(kernel_info_t &kernel,
                                    ptx_thread_info **thread_info, int sid,
@@ -2282,7 +2315,7 @@ class exec_shader_core_ctx : public shader_core_ctx {
 
   virtual void checkExecutionStatusAndUpdate(warp_inst_t &inst, unsigned t,
                                              unsigned tid);
-  virtual void func_exec_inst(warp_inst_t &inst);
+  virtual void func_exec_inst(warp_inst_t &inst, spin_state_t &spin_state);
   virtual unsigned sim_init_thread(kernel_info_t &kernel,
                                    ptx_thread_info **thread_info, int sid,
                                    unsigned tid, unsigned threads_left,
