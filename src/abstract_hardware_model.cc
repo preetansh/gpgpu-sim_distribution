@@ -1175,13 +1175,23 @@ void simt_stack::update(simt_mask_t &thread_done, addr_vector_t &next_pc,
   }
 }
 
-void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, unsigned warpId) {
+void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
   bool found_spin = true;
+  unsigned warpId = inst.warp_id();
+  spin_state = get_spin_state(warpId) ? SPINNING : NOT_SPINNING;
+  auto back_branch = false;
   for (unsigned t = 0; t < m_warp_size; t++) {
     if (inst.active(t)) {
-      if (warpId == (unsigned(-1))) warpId = inst.warp_id();
+      // if (warpId == (unsigned(-1))) warpId = inst.warp_id();
       unsigned tid = m_warp_size * warpId + t;
+      auto current_pc = m_thread[tid]->get_pc();
       m_thread[tid]->ptx_exec_inst(inst, t);
+      if(m_thread[tid]->m_branch_taken){
+        auto next_pc = m_thread[tid]->get_pc();
+        if(next_pc < current_pc){
+          back_branch = true;
+        }
+      }
 
       // virtual function
       checkExecutionStatusAndUpdate(inst, t, tid);
@@ -1203,6 +1213,29 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, un
   } else {
     spin_state = NOT_SPINNING;
   }
+
+  if(back_branch){
+    if(prediction_table_.count(inst.pc) > 0 && prediction_table_[inst.pc].is_spinning_){
+      inst.m_is_sib = true;
+    }
+    if(spin_state == SPINNING){
+      auto &table_val = prediction_table_[inst.pc];
+      table_val.confidence_++;
+      if(table_val.confidence_ >= 4){
+        table_val.is_spinning_ = true;
+      }
+    }else{
+      if(prediction_table_.count(inst.pc) > 0){
+        auto &table_val = prediction_table_[inst.pc];
+        table_val.confidence_--;
+        if(table_val.confidence_ < 4){
+          table_val.is_spinning_ = false;
+        }
+      }
+    }
+  }
+
+  set_spin_state(warpId, spin_state == SPINNING);
 }
 
 bool core_t::ptx_thread_done(unsigned hw_thread_id) const {

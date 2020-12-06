@@ -904,6 +904,7 @@ class inst_t {
     mem_op = NOT_TEX;
     num_operands = 0;
     num_regs = 0;
+    m_is_sib = false;
     memset(out, 0, sizeof(unsigned));
     memset(in, 0, sizeof(unsigned));
     is_vectorin = 0;
@@ -979,6 +980,7 @@ class inst_t {
   unsigned initiation_interval;
 
   unsigned data_size;  // what is the size of the word being operated on?
+  bool m_is_sib;
   memory_space_t space;
   cache_operator_type cache_op;
 
@@ -1209,6 +1211,14 @@ class checkpoint {
   void store_global_mem(class memory_space *mem, char *fname, char *format);
   unsigned radnom;
 };
+
+
+class pt_state_t {
+  public:
+  unsigned confidence_;
+  bool is_spinning_;
+};
+
 /*
  * This abstract class used as a base for functional and performance and
  * simulation, it has basic functional simulation data structures and
@@ -1222,7 +1232,8 @@ class core_t {
         m_kernel(kernel),
         m_simt_stack(NULL),
         m_thread(NULL),
-        m_warp_size(warp_size) {
+        m_warp_size(warp_size),
+        m_warp_spinning_states(NULL) {
     m_warp_count = threads_per_shader / m_warp_size;
     // Handle the case where the number of threads is not a
     // multiple of the warp size
@@ -1234,13 +1245,19 @@ class core_t {
                                           sizeof(ptx_thread_info *));
     initilizeSIMTStack(m_warp_count, m_warp_size);
 
+    m_warp_spinning_states = new bool[m_warp_count];
+
     for (unsigned i = 0; i < MAX_CTA_PER_SHADER; i++) {
       for (unsigned j = 0; j < MAX_BARRIERS_PER_CTA; j++) {
         reduction_storage[i][j] = 0;
       }
     }
   }
-  virtual ~core_t() { free(m_thread); }
+  virtual ~core_t() { 
+    free(m_thread);
+    delete m_warp_spinning_states;
+   }
+
   virtual void warp_exit(unsigned warp_id) = 0;
   virtual bool warp_waiting_at_barrier(unsigned warp_id) const = 0;
   virtual void checkExecutionStatusAndUpdate(warp_inst_t &inst, unsigned t,
@@ -1248,7 +1265,7 @@ class core_t {
   class gpgpu_sim *get_gpu() {
     return m_gpu;
   }
-  void execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, unsigned warpId = (unsigned)-1);
+  void execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state);
   bool ptx_thread_done(unsigned hw_thread_id) const;
   virtual void updateSIMTStack(unsigned warpId, warp_inst_t *inst);
   void initilizeSIMTStack(unsigned warp_count, unsigned warps_size);
@@ -1274,10 +1291,22 @@ class core_t {
     return reduction_storage[ctaid][barid];
   }
 
+  void set_spin_state(unsigned warp_id, bool state) {
+    m_warp_spinning_states[warp_id] = state;
+  }
+
+  bool get_spin_state(unsigned warp_id) {
+    return m_warp_spinning_states[warp_id];
+  }
+
+public:
+  std::map<unsigned, pt_state_t> prediction_table_;
+
  protected:
   class gpgpu_sim *m_gpu;
   kernel_info_t *m_kernel;
   simt_stack **m_simt_stack;  // pdom based reconvergence context for each warp
+  bool *m_warp_spinning_states;
   class ptx_thread_info **m_thread;
   unsigned m_warp_size;
   unsigned m_warp_count;

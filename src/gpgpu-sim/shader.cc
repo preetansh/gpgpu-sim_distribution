@@ -985,11 +985,15 @@ void shader_core_ctx::fetch() {
 
 void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst, spin_state_t &spin_state) {
   printf("PREETANSH shader core \n");
-  spin_state = NOT_SPINNING;
+  spin_state = get_spin_state(inst.warp_id()) ? SPINNING : NOT_SPINNING;
   execute_warp_inst_t(inst, spin_state);
   if (inst.is_load() || inst.is_store()) {
     inst.generate_mem_accesses();
     // inst.print_m_accessq();
+  }
+  if(inst.m_is_sib){
+    // do spin backoff??
+    inst.m_is_sib = false;
   }
 }
 
@@ -1233,8 +1237,8 @@ void scheduler_unit::cycle() {
           warp(warp_id).set_next_pc(pc);
           warp(warp_id).ibuffer_flush();
           auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
-          printf("PREETANSH branch inst?: warp_id %u op %s pc %u pI->Pc %u\n", warp_id, 
-                  ptx_pI->get_opcode_cstr(), pc, pI->pc);
+          // printf("PREETANSH branch inst?: warp_id %u op %s pc %u pI->Pc %u\n", warp_id, 
+          //         ptx_pI->get_opcode_cstr(), pc, pI->pc);
         } else {
           valid_inst = true;
           auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
