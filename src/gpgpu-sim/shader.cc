@@ -1232,6 +1232,9 @@ void scheduler_unit::cycle() {
           // control hazard
           warp(warp_id).set_next_pc(pc);
           warp(warp_id).ibuffer_flush();
+          auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
+          printf("PREETANSH branch inst?: warp_id %u op %s pc %u pI->Pc %u\n", warp_id, 
+                  ptx_pI->get_opcode_cstr(), pc, pI->pc);
         } else {
           valid_inst = true;
           auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
