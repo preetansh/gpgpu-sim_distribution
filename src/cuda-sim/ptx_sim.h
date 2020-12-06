@@ -39,6 +39,7 @@
 #include <list>
 #include <map>
 #include <set>
+#include <deque>
 #include <string>
 
 #include "memory.h"
@@ -455,6 +456,35 @@ class ptx_thread_info {
   void popc_reduction(unsigned ctaid, unsigned barid, bool value) {
     m_core->popc_reduction(ctaid, barid, value);
   }
+  /*
+    Updated operand history for 'pc'
+  */
+  void update_setp_operands(unsigned pc, unsigned op1, unsigned op2) {
+    //TODO: Update history structure
+    if (m_history.count(pc) == 0 || m_history[pc].size()<5) {
+      m_history[pc].push_back(std::make_pair(op1, op2));
+    } else {
+      m_history[pc].pop_front();
+      m_history[pc].push_back(std::make_pair(op1, op2));
+    } 
+
+    // check if spinning
+    if (m_history[pc].size() == 5) {
+      m_is_spinning = true;
+      auto it = m_history[pc].begin();
+      while (it!=m_history[pc].end()) {
+        if (op1 != it->first || op2 != it->second ) {
+          m_is_spinning = false;
+          return;
+        }
+        it++;
+      }
+    }
+
+
+  }
+
+
 
   // Jin: get corresponding kernel grid for CDP purpose
   kernel_info_t &get_kernel() { return m_kernel; }
@@ -470,6 +500,9 @@ class ptx_thread_info {
   ptx_warp_info *m_warp_info;
   ptx_cta_info *m_cta_info;
   ptx_reg_t m_last_set_operand_value;
+
+  // Is thread spinning
+  bool m_is_spinning = false;
 
  private:
   bool m_functionalSimulationMode;
@@ -513,6 +546,12 @@ class ptx_thread_info {
   bool m_enable_debug_trace;
 
   std::stack<class operand_info, std::vector<operand_info> > m_breakaddrs;
+
+  // Structure to store Path history & Value History
+  using history_type = std::unordered_map<unsigned, 
+    std::deque< std::pair<unsigned, unsigned> > >;
+
+  history_type m_history;
 };
 
 addr_t generic_to_local(unsigned smid, unsigned hwtid, addr_t addr);

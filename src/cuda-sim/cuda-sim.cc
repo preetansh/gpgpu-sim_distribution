@@ -955,6 +955,7 @@ void ptx_instruction::set_opcode_and_latency() {
 void ptx_thread_info::ptx_fetch_inst(inst_t &inst) const {
   addr_t pc = get_pc();
   const ptx_instruction *pI = m_func_info->get_instruction(pc);
+  printf("PREETANSH: %s\n", pI->get_opcode_cstr());
   inst = (const inst_t &)*pI;
   assert(inst.valid());
 }
@@ -1700,6 +1701,21 @@ void ptx_thread_info::ptx_exec_inst(warp_inst_t &inst, unsigned lane_id) {
   assert(pc ==
          inst.pc);  // make sure timing model and functional model are in sync
   const ptx_instruction *pI = m_func_info->get_instruction(pc);
+  printf("PREETANSH 4: %s\n", pI->get_opcode_cstr());
+  // TODO: compare ENUM
+  if (pI->get_opcode() == SETP_OP) {
+    auto src1_info = pI->src1();
+    auto src2_info = pI->src2();
+    auto dst_info = pI->dst();
+    auto src1_val = get_operand_value(src1_info, dst_info, S32_TYPE, this, 0).s32;
+    auto src2_val = get_operand_value(src2_info, dst_info, S32_TYPE, this, 0).s32;
+
+    printf("PREETANSH operand val: %u %d %d\n", lane_id, src1_val, src2_val);
+
+    update_setp_operands(pc, src1_val, src2_val);
+  } else {
+    m_is_spinning = false;
+  }
 
   set_npc(pc + pI->inst_size());
 
@@ -2630,9 +2646,11 @@ void functionalCoreSim::execute(int inst_count, unsigned ctaid_cp) {
 
 void functionalCoreSim::executeWarp(unsigned i, bool &allAtBarrier,
                                     bool &someOneLive) {
+  printf("PREETANSH functional execute \n");
   if (!m_warpAtBarrier[i] && m_liveThreadCount[i] != 0) {
     warp_inst_t inst = getExecuteWarp(i);
-    execute_warp_inst_t(inst, i);
+    int spin_state = 0;
+    execute_warp_inst_t(inst, spin_state, i);
     if (inst.isatomic()) inst.do_atomic(true);
     if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP)
       m_warpAtBarrier[i] = true;

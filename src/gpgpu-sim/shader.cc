@@ -984,7 +984,9 @@ void shader_core_ctx::fetch() {
 }
 
 void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst) {
-  execute_warp_inst_t(inst);
+  printf("PREETANSH shader core \n");
+  int spin_state = 0;
+  execute_warp_inst_t(inst, spin_state);
   if (inst.is_load() || inst.is_store()) {
     inst.generate_mem_accesses();
     // inst.print_m_accessq();
@@ -1129,6 +1131,7 @@ void scheduler_unit::order_by_priority(
 
 void scheduler_unit::cycle() {
   SCHED_DPRINTF("scheduler_unit::cycle()\n");
+  // printf("PREETANSH new cycle started \n");
   bool valid_inst =
       false;  // there was one warp with a valid instruction to issue (didn't
               // require flush due to control hazard)
@@ -1201,6 +1204,8 @@ void scheduler_unit::cycle() {
           warp(warp_id).ibuffer_flush();
         } else {
           valid_inst = true;
+          auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
+          printf("PREETANSH cycle inst: warp_id %u inst %s %d\n", warp_id, ptx_pI->get_opcode_cstr(), pI->op);
           if (!m_scoreboard->checkCollision(warp_id, pI)) {
             SCHED_DPRINTF(
                 "Warp (warp_id %u, dynamic_warp_id %u) passes scoreboard\n",

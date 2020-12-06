@@ -1175,7 +1175,8 @@ void simt_stack::update(simt_mask_t &thread_done, addr_vector_t &next_pc,
   }
 }
 
-void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId) {
+void core_t::execute_warp_inst_t(warp_inst_t &inst, int &spin_state, unsigned warpId) {
+  bool found_spin = true;
   for (unsigned t = 0; t < m_warp_size; t++) {
     if (inst.active(t)) {
       if (warpId == (unsigned(-1))) warpId = inst.warp_id();
@@ -1184,7 +1185,21 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId) {
 
       // virtual function
       checkExecutionStatusAndUpdate(inst, t, tid);
+
+      // check for thread spin
+      printf("PREETANSH IS_SPIN: %u %u %d\n", warpId, t, m_thread[tid]->m_is_spinning);
+      if (!m_thread[tid]->m_is_spinning) {
+        found_spin = false;
+      }
     }
+  }
+
+  // auto ptx_pI = dynamic_cast<const ptx_instruction *>(&inst);
+  // if (ptx_pI->get_opcode() == SETP_OP && found_spin) {
+  if (found_spin) {
+    // TODO: Update core about backoff
+    printf("PREETANSH WARP SPIN: %u\n", warpId);
+    spin_state = 1;
   }
 }
 
