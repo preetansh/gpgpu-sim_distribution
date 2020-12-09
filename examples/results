@@ -1,0 +1,20 @@
+Prediction table results (with global add)
+confidence - 4
+
+0 backoff - 104282
+10 backoff - 102523
+100 backoff - 92506
+1000 backoff - 92700
+10000 backoff - 129088 
+
+confidence - 2
+
+100 backoff - 91359
+1000 backoff - 85602
+10000 backoff - 118859
+
+confidence - 1
+
+100 backoff - 91467
+1000 backoff - 79601
+10000 backoff - 171001
