@@ -993,6 +993,8 @@ void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst, spin_state_t &spin_
   }
   if(inst.m_is_sib){
     // do spin backoff??
+    printf("BACKING OFF %d\n", inst.warp_id());
+    m_warp[inst.warp_id()]->set_back_off(16);
     inst.m_is_sib = false;
   }
 }
@@ -1018,7 +1020,8 @@ void shader_core_ctx::issue_warp(register_set &pipe_reg_set,
 
   // set to backoff if spinning
   if (spin_state == SPINNING) {
-    m_warp[warp_id]->set_back_off(m_warp.size() / m_config->gpgpu_num_sched_per_core);
+    printf("BACKING OFF THE WARP %d by %d\n", warp_id, m_warp.size() / m_config->gpgpu_num_sched_per_core);
+    // m_warp[warp_id]->set_back_off(16);
   }
 
 
@@ -1154,11 +1157,15 @@ void scheduler_unit::cycle() {
 
   // reduce back-off for backed-off warps
   int num_backed_off = 0;
+  int num_active = 0;
   std::vector<shd_warp_t *>::const_iterator min_back_off_iter = m_next_cycle_prioritized_warps.end(); 
   for (std::vector<shd_warp_t *>::const_iterator iter =
            m_next_cycle_prioritized_warps.begin();
        iter != m_next_cycle_prioritized_warps.end(); iter++) {
-    if ((*iter) == NULL || (*iter)->is_backed_off()) {
+    if((*iter) != NULL && !(*iter)->done_exit()){
+      num_active++;
+    }
+    if ((*iter) != NULL && (*iter)->is_backed_off()) {
       num_backed_off++;
       printf("PREETANSH backed-off: in scheduler %d num_backed_off %d total %d\n", 
         get_schd_id(), num_backed_off, m_next_cycle_prioritized_warps.size());
@@ -1167,18 +1174,27 @@ void scheduler_unit::cycle() {
         (*min_back_off_iter)->get_back_off() > (*iter)->get_back_off()) {
         min_back_off_iter = iter;
       }
+
+      if(!(*iter)->is_backed_off()){
+        this->m_shader->set_spin_state((*iter)->get_warp_id(), false);
+      }
     }
   }
-  if (num_backed_off == m_next_cycle_prioritized_warps.size()) {
+  printf("num backed off is %d num active is %d\n", num_backed_off, num_active);
+  if (num_backed_off == num_active && (num_active > 0)) {
+    printf("ALL BACKED OFF, picking %d\n", (*min_back_off_iter)->get_warp_id());
     (*min_back_off_iter)->reduce_back_off(
       (*min_back_off_iter)->get_back_off());
+    this->m_shader->set_spin_state((*min_back_off_iter)->get_warp_id(), false);
   }
 
   for (std::vector<shd_warp_t *>::const_iterator iter =
            m_next_cycle_prioritized_warps.begin();
        iter != m_next_cycle_prioritized_warps.end(); iter++) {
     // Don't consider warps that are not yet valid
-    if ((*iter) == NULL || (*iter)->done_exit() || (*iter)->is_backed_off()) {
+    if ((*iter) == NULL || (*iter)->done_exit() 
+    || (*iter)->is_backed_off()
+    ) {
       continue;
     }
     SCHED_DPRINTF("Testing (warp_id %u, dynamic_warp_id %u)\n",

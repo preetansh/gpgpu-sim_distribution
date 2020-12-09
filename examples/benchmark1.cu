@@ -29,7 +29,6 @@ benchmark_1_kernel(int* finished, int* total) {
 __global__ void
 benchmark_2_kernel(int* finished, int* total) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	bool done = false;
 
 	int array_id = index/64;
 

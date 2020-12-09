@@ -100,7 +100,8 @@ class thread_ctx_t {
 class shd_warp_t {
  public:
   shd_warp_t(class shader_core_ctx *shader, unsigned warp_size)
-      : m_shader(shader), m_warp_size(warp_size) {
+      : m_shader(shader), m_warp_size(warp_size), 
+      m_spin_state(NOT_SPINNING) {
     m_stores_outstanding = 0;
     m_inst_in_pipeline = 0;
     reset();
@@ -124,6 +125,8 @@ class shd_warp_t {
 
     // reset backoff
     m_backoff_remaining = 0;
+
+    m_spin_state = NOT_SPINNING;
   }
   void init(address_type start_pc, unsigned cta_id, unsigned wid,
             const std::bitset<MAX_WARP_SIZE> &active,
@@ -166,6 +169,14 @@ class shd_warp_t {
   void set_last_fetch(unsigned long long sim_cycle) {
     m_last_fetch = sim_cycle;
   }
+
+  // void set_spin_state(spin_state_t spin_state) {
+  //   m_spin_state = spin_state;
+  // }
+
+  // spin_state_t get_spin_state() const {
+  //   return m_spin_state;
+  // }
 
   unsigned get_n_atomic() const { return m_n_atomic; }
   void inc_n_atomic() { m_n_atomic++; }
@@ -256,6 +267,9 @@ class shd_warp_t {
     } else {
       m_backoff_remaining = 0;
     }
+    if(m_backoff_remaining == 0){
+      printf("warp AWAKENED %d\n", m_warp_id);
+    }
   }
 
   // Get remaining backoff
@@ -310,6 +324,8 @@ class shd_warp_t {
 
   // back-off delay
   unsigned m_backoff_remaining;
+
+  spin_state_t m_spin_state;
 
   // Jin: cdp support
  public:
