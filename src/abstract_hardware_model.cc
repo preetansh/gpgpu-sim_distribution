@@ -1187,7 +1187,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, un
       checkExecutionStatusAndUpdate(inst, t, tid);
 
       // check for thread spin
-      printf("PREETANSH IS_SPIN: %u %u %d\n", warpId, t, m_thread[tid]->m_is_spinning);
+      //printf("PREETANSH IS_SPIN: %u %u %d\n", warpId, t, m_thread[tid]->m_is_spinning);
       if (!m_thread[tid]->m_is_spinning) {
         found_spin = false;
       }
@@ -1198,7 +1198,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state, un
   // if (ptx_pI->get_opcode() == SETP_OP && found_spin) {
   if (found_spin) {
     // TODO: Update core about backoff
-    printf("PREETANSH WARP SPIN: %u\n", warpId);
+    //printf("PREETANSH WARP SPIN: %u\n", warpId);
     spin_state = SPINNING;
   } else {
     spin_state = NOT_SPINNING;

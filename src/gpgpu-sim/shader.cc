@@ -984,7 +984,7 @@ void shader_core_ctx::fetch() {
 }
 
 void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst, spin_state_t &spin_state) {
-  printf("PREETANSH shader core \n");
+  //printf("PREETANSH shader core \n");
   spin_state = NOT_SPINNING;
   execute_warp_inst_t(inst, spin_state);
   if (inst.is_load() || inst.is_store()) {
@@ -1014,7 +1014,7 @@ void shader_core_ctx::issue_warp(register_set &pipe_reg_set,
 
   // set to backoff if spinning
   if (spin_state == SPINNING) {
-    m_warp[warp_id]->set_back_off(m_warp.size() / m_config->gpgpu_num_sched_per_core);
+    m_warp[warp_id]->set_back_off(0);
   }
 
 
@@ -1156,8 +1156,8 @@ void scheduler_unit::cycle() {
        iter != m_next_cycle_prioritized_warps.end(); iter++) {
     if ((*iter) == NULL || (*iter)->is_backed_off()) {
       num_backed_off++;
-      printf("PREETANSH backed-off: in scheduler %d num_backed_off %d total %d\n", 
-        get_schd_id(), num_backed_off, m_next_cycle_prioritized_warps.size());
+      //printf("PREETANSH backed-off: in scheduler %d num_backed_off %d total %d\n", 
+        //get_schd_id(), num_backed_off, m_next_cycle_prioritized_warps.size());
       (*iter)->reduce_back_off(1);
       if (min_back_off_iter == m_next_cycle_prioritized_warps.end() || 
         (*min_back_off_iter)->get_back_off() > (*iter)->get_back_off()) {
@@ -1233,12 +1233,12 @@ void scheduler_unit::cycle() {
           warp(warp_id).set_next_pc(pc);
           warp(warp_id).ibuffer_flush();
           auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
-          printf("PREETANSH branch inst?: warp_id %u op %s pc %u pI->Pc %u\n", warp_id, 
-                  ptx_pI->get_opcode_cstr(), pc, pI->pc);
+          //printf("PREETANSH branch inst?: warp_id %u op %s pc %u pI->Pc %u\n", warp_id, 
+            //      ptx_pI->get_opcode_cstr(), pc, pI->pc);
         } else {
           valid_inst = true;
           auto ptx_pI = dynamic_cast<const ptx_instruction *>(pI);
-          printf("PREETANSH cycle inst: warp_id %u inst %s %d\n", warp_id, ptx_pI->get_opcode_cstr(), pI->op);
+          //printf("PREETANSH cycle inst: warp_id %u inst %s %d\n", warp_id, ptx_pI->get_opcode_cstr(), pI->op);
           if (!m_scoreboard->checkCollision(warp_id, pI)) {
             SCHED_DPRINTF(
                 "Warp (warp_id %u, dynamic_warp_id %u) passes scoreboard\n",
