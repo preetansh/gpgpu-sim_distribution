@@ -1,0 +1,25 @@
+48 warps - 24 per scheduler
+
+131486 - backoff 50000
+69120  - backoff 10000
+70771  - backoff 1000 
+70771  - backoff 500  
+82727  - backoff 200
+88513  - backoff 100
+101957 - backoff 50
+99660  - backoff 45
+98607  - backoff 40
+102585 - backoff 35
+101957 - backoff 30
+102027 - backoff 24
+103388 - backoff 10
+104282 - backoff 2
+104282 - backoff 0
+
+
+Without the global add
+0 backoff - 69188
+100 backoff - 65866
+1000 backoff - 51114
+10000 backoff - 47725
+50000 backoff - 123097
