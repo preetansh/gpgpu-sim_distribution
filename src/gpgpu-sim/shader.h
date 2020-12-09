@@ -267,9 +267,6 @@ class shd_warp_t {
     } else {
       m_backoff_remaining = 0;
     }
-    if(m_backoff_remaining == 0){
-      printf("warp AWAKENED %d\n", m_warp_id);
-    }
   }
 
   // Get remaining backoff

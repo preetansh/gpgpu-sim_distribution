@@ -993,7 +993,7 @@ void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst, spin_state_t &spin_
   }
   if(inst.m_is_sib){
     // do spin backoff??
-    printf("BACKING OFF %d\n", inst.warp_id());
+    // printf("BACKING OFF %d\n", inst.warp_id());
     m_warp[inst.warp_id()]->set_back_off(16);
     inst.m_is_sib = false;
   }
@@ -1020,7 +1020,7 @@ void shader_core_ctx::issue_warp(register_set &pipe_reg_set,
 
   // set to backoff if spinning
   if (spin_state == SPINNING) {
-    printf("BACKING OFF THE WARP %d by %d\n", warp_id, m_warp.size() / m_config->gpgpu_num_sched_per_core);
+    // printf("BACKING OFF THE WARP %d by %d\n", warp_id, m_warp.size() / m_config->gpgpu_num_sched_per_core);
     // m_warp[warp_id]->set_back_off(16);
   }
 
@@ -1180,9 +1180,9 @@ void scheduler_unit::cycle() {
       }
     }
   }
-  printf("num backed off is %d num active is %d\n", num_backed_off, num_active);
+  // printf("num backed off is %d num active is %d\n", num_backed_off, num_active);
   if (num_backed_off == num_active && (num_active > 0)) {
-    printf("ALL BACKED OFF, picking %d\n", (*min_back_off_iter)->get_warp_id());
+    // printf("ALL BACKED OFF, picking %d\n", (*min_back_off_iter)->get_warp_id());
     (*min_back_off_iter)->reduce_back_off(
       (*min_back_off_iter)->get_back_off());
     this->m_shader->set_spin_state((*min_back_off_iter)->get_warp_id(), false);

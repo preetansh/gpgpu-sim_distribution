@@ -1701,7 +1701,7 @@ void ptx_thread_info::ptx_exec_inst(warp_inst_t &inst, unsigned lane_id) {
   assert(pc ==
          inst.pc);  // make sure timing model and functional model are in sync
   const ptx_instruction *pI = m_func_info->get_instruction(pc);
-  printf("PREETANSH 4: %p %s\n", pI->get_PC(), pI->get_opcode_cstr());
+  // printf("PREETANSH 4: %p %s\n", pI->get_PC(), pI->get_opcode_cstr());
   // TODO: compare ENUM
 
   set_npc(pc + pI->inst_size());
@@ -1864,10 +1864,10 @@ void ptx_thread_info::ptx_exec_inst(warp_inst_t &inst, unsigned lane_id) {
       auto src1_val = get_operand_value(src1_info, dst_info, S32_TYPE, this, 0).s32;
       auto src2_val = get_operand_value(src2_info, dst_info, S32_TYPE, this, 0).s32;
 
-      printf("PREETANSH operand val: %u %d %d %d\n", lane_id, inst.warp_id(), src1_val, src2_val);
+      // printf("PREETANSH operand val: %u %d %d %d\n", lane_id, inst.warp_id(), src1_val, src2_val);
 
       update_setp_operands(pc, src1_val, src2_val);
-      printf("PREETANSH updated operands: %u %d %d\n", lane_id, src1_val, src2_val);
+      // printf("PREETANSH updated operands: %u %d %d\n", lane_id, src1_val, src2_val);
     } else {
       m_is_spinning = false;
     }

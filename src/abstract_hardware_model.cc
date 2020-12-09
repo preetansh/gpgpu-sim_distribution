@@ -1189,8 +1189,8 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
       if(m_thread[tid]->m_branch_taken){
         auto next_pc = m_thread[tid]->get_pc();
         if(next_pc < current_pc){
-          printf("warp Id %d : BACK BRANCH FROM %p to %p\n", warpId,
-           current_pc, next_pc);
+          // printf("warp Id %d : BACK BRANCH FROM %p to %p\n", warpId,
+          //  current_pc, next_pc);
           back_branch = true;
         }
       }
@@ -1220,7 +1220,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
       inst.m_is_sib = true;
     }
 
-    printf("BACK BRANCH ON %p with CONFIDENCE %d\n", inst.pc, prediction_table_[inst.pc].confidence_);
+    // printf("BACK BRANCH ON %p with CONFIDENCE %d\n", inst.pc, prediction_table_[inst.pc].confidence_);
     if(spin_state == SPINNING){
       auto &table_val = prediction_table_[inst.pc];
       table_val.confidence_++;

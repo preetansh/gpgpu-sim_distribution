@@ -461,7 +461,7 @@ class ptx_thread_info {
   */
   void update_setp_operands(unsigned pc, unsigned op1, unsigned op2) {
     //TODO: Update history structure
-    printf("pc %p had history count %d\n", (void*)pc, m_history[pc].size());
+    // printf("pc %p had history count %d\n", (void*)pc, m_history[pc].size());
     if (m_history.count(pc) == 0 || m_history[pc].size()<5) {
       m_history[pc].push_back(std::make_pair(op1, op2));
     } else {
@@ -469,7 +469,7 @@ class ptx_thread_info {
       m_history[pc].push_back(std::make_pair(op1, op2));
     }
 
-    printf("pc %p has history count %d\n", (void*)pc, m_history[pc].size());
+    // printf("pc %p has history count %d\n", (void*)pc, m_history[pc].size());
 
     // check if spinning
     if (m_history[pc].size() == 5) {
@@ -477,7 +477,7 @@ class ptx_thread_info {
       auto it = m_history[pc].begin();
       while (it!=m_history[pc].end()) {
         if (op1 != it->first || op2 != it->second ) {
-          printf("BRUHHH %d %d vs %d %d\n", op1, op2, it->first, it->second);
+          // printf("mismatch %d %d vs %d %d\n", op1, op2, it->first, it->second);
           m_is_spinning = false;
           return;
         }
