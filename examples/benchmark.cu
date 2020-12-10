@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
   	int* finished;
   	int* total;
-  	int warpsNum = 24;
+  	int warpsNum = 360;
 
 	finished = (int *) malloc(warpsNum * sizeof(int));
 	// *finished = 0;
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 	// compute number of blocks and threads per block
     const int threadsPerBlock = 256;
-    const int blocks = 6;
+    const int blocks = 90;
 
 	benchmark_1_kernel<<<blocks, threadsPerBlock>>>(device_finished, device_total);
 

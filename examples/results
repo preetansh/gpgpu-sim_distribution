@@ -23,3 +23,18 @@ Without the global add
 1000 backoff - 51114
 10000 backoff - 47725
 50000 backoff - 123097
+
+TSP
+
+5348154 - 0 backoff
+5356178 - 10 backoff
+5501666 - 100 backoff
+7202154 - 1000 backoff
+24463294 - 10000 backoff
+
+benchmark over all 15 SM's of GTX480
+0 backoff - 679861
+100 backoff - 563836
+1000 backoff - 277659
+10000 backoff - 148941
+50000 backoff - 182889
