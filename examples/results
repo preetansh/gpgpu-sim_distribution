@@ -18,3 +18,27 @@ confidence - 1
 100 backoff - 91467
 1000 backoff - 79601
 10000 backoff - 171001
+
+Prediction table results (with hashtable)
+confidence - 4
+
+0 backoff - 124278
+10 backoff - 120145
+100 backoff - 122646
+1000 backoff - 114856
+10000 backoff - 113060 
+
+confidence - 2
+
+10 backoff - 115873
+100 backoff - 120040
+1000 backoff - 116673
+10000 backoff - 117655
+
+confidence - 1
+
+0 backoff - 124278
+10 backoff - 115873
+100 backoff - 117760
+1000 backoff - 111035
+10000 backoff - 116978

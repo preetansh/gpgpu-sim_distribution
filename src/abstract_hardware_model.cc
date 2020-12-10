@@ -1199,7 +1199,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
       checkExecutionStatusAndUpdate(inst, t, tid);
 
       // check for thread spin
-      printf("PREETANSH IS_SPIN: %u %u %d\n", warpId, t, m_thread[tid]->m_is_spinning);
+      // printf("PREETANSH IS_SPIN: %u %u %d\n", warpId, t, m_thread[tid]->m_is_spinning);
       if (!m_thread[tid]->m_is_spinning) {
         found_spin = false;
       }
@@ -1210,7 +1210,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
   // if (ptx_pI->get_opcode() == SETP_OP && found_spin) {
   if (found_spin) {
     // TODO: Update core about backoff
-    printf("PREETANSH WARP SPIN: %u\n", warpId);
+    // printf("PREETANSH WARP SPIN: %u\n", warpId);
     spin_state = SPINNING;
     m_warp_spinning_states[warpId] = SPINNING;
   }
@@ -1221,20 +1221,22 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
     }
 
     // printf("BACK BRANCH ON %p with CONFIDENCE %d\n", inst.pc, prediction_table_[inst.pc].confidence_);
+    const size_t threshold = 4;
     if(spin_state == SPINNING){
       auto &table_val = prediction_table_[inst.pc];
       table_val.confidence_++;
-      if(table_val.confidence_ >= 1){
+      if(table_val.confidence_ >= threshold){
         table_val.is_spinning_ = true;
       }
     }else{
       if(prediction_table_.count(inst.pc) > 0){
         auto &table_val = prediction_table_[inst.pc];
         table_val.confidence_ = table_val.confidence_ == 0 ? 0 : table_val.confidence_ - 1;
-        if(table_val.confidence_ < 4){
+        if(table_val.confidence_ < threshold){
           table_val.is_spinning_ = false;
         }
       }
+      inst.m_is_sib = false;
     }
   }
 

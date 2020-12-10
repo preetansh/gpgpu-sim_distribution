@@ -955,7 +955,7 @@ void ptx_instruction::set_opcode_and_latency() {
 void ptx_thread_info::ptx_fetch_inst(inst_t &inst) const {
   addr_t pc = get_pc();
   const ptx_instruction *pI = m_func_info->get_instruction(pc);
-  printf("PREETANSH: %s\n", pI->get_opcode_cstr());
+  // printf("PREETANSH: %s\n", pI->get_opcode_cstr());
   inst = (const inst_t &)*pI;
   assert(inst.valid());
 }
@@ -1873,7 +1873,7 @@ void ptx_thread_info::ptx_exec_inst(warp_inst_t &inst, unsigned lane_id) {
     }
 
     if(pI->get_opcode() == BRA_OP){
-      printf("preetansh I have %d operands\n", pI->num_operands);
+      // printf("preetansh I have %d operands\n", pI->num_operands);
       // auto src2_info = pI->src2();
       auto dst_info = pI->dst();
       auto dst_val = get_operand_value(dst_info, dst_info, S32_TYPE, this, 0).u32;
@@ -1882,7 +1882,7 @@ void ptx_thread_info::ptx_exec_inst(warp_inst_t &inst, unsigned lane_id) {
         // backwards branch
         // if(
       }
-      printf("PREETANSH branch operand val: %u %d\n", lane_id, dst_val);
+      // printf("PREETANSH branch operand val: %u %d\n", lane_id, dst_val);
     }
 
     // Output register information to file and stdout
@@ -2661,7 +2661,7 @@ void functionalCoreSim::execute(int inst_count, unsigned ctaid_cp) {
 
 void functionalCoreSim::executeWarp(unsigned i, bool &allAtBarrier,
                                     bool &someOneLive) {
-  printf("PREETANSH functional execute \n");
+  // printf("PREETANSH functional execute \n");
   if (!m_warpAtBarrier[i] && m_liveThreadCount[i] != 0) {
     warp_inst_t inst = getExecuteWarp(i);
     spin_state_t spin_state = NOT_SPINNING;

@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	// int array[] = {0,1,2,3,4,5,6,7,8,9};
 	std::vector<int> insert_vals;
 	// insert_vals.insert(insert_vals.begin(), array,&array[sizeof(array)/ sizeof(*array)]);
-	for(int i= 0;i < 100000;i++){
+	for(int i= 0;i < 1000;i++){
 		insert_vals.push_back(i);
 	}
 
@@ -153,43 +153,43 @@ int main(int argc, char *argv[])
 
 	// compute number of blocks and threads per block
     const int threadsPerBlock = 256;
-    const int blocks = 10;
+    const int blocks = 3;
 
 	benchmark_1_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, 
-		total, insert_nodes.size()/threadsPerBlock + 1);
+		total, (insert_nodes.size()/(threadsPerBlock*blocks)) + 1);
 
 	cudaDeviceSynchronize();
     // cudaMemcpy(finished, device_finished, warpsNum * sizeof(int), cudaMemcpyDeviceToHost);
 	// cudaMemcpy(total, device_total, warpsNum * sizeof(int), cudaMemcpyDeviceToHost);
 
-	bool *found_array = new bool[insert_vals.size()];
-	for(int i = 0;i < insert_vals.size();i++){
-		found_array[i] = false;
-	}
+	// bool *found_array = new bool[insert_vals.size()];
+	// for(int i = 0;i < insert_vals.size();i++){
+	// 	found_array[i] = false;
+	// }
 
-	bool *dev_found_array;
+	// bool *dev_found_array;
 
-	cudaMalloc(&dev_found_array, sizeof(bool)*insert_vals.size());
-	cudaMemset(dev_found_array, 0, sizeof(bool)*insert_vals.size());
-	checker_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, total, dev_found_array,
-		insert_nodes.size()/threadsPerBlock + 1);
+	// cudaMalloc(&dev_found_array, sizeof(bool)*insert_vals.size());
+	// cudaMemset(dev_found_array, 0, sizeof(bool)*insert_vals.size());
+	// checker_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, total, dev_found_array,
+	// 	(insert_nodes.size()/(threadsPerBlock*blocks)) + 1);
 
-	cudaDeviceSynchronize();
-	cudaMemcpy(found_array, dev_found_array, sizeof(bool)*insert_vals.size(), cudaMemcpyDeviceToHost);
-	size_t num_found = 0;
-	for(int i = 0;i < insert_vals.size();i++){
-		if(!found_array[i]){
-			printf("DIDNT FIND %d\n", insert_vals[i]);
-		}else{
-			num_found++;
-		}
-	}
+	// cudaDeviceSynchronize();
+	// cudaMemcpy(found_array, dev_found_array, sizeof(bool)*insert_vals.size(), cudaMemcpyDeviceToHost);
+	// size_t num_found = 0;
+	// for(int i = 0;i < insert_vals.size();i++){
+	// 	if(!found_array[i]){
+	// 		printf("DIDNT FIND %d\n", insert_vals[i]);
+	// 	}else{
+	// 		num_found++;
+	// 	}
+	// }
 
-	if(num_found == insert_vals.size()){
-		printf("FOUND EVERYTHING\n");
-	}
+	// if(num_found == insert_vals.size()){
+	// 	printf("FOUND EVERYTHING\n");
+	// }
 
-	cudaFree(dev_found_array);
+	// cudaFree(dev_found_array);
 
 
     // for (int i = 0; i < warpsNum; i++) {
