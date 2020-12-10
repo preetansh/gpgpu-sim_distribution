@@ -1224,7 +1224,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
     if(spin_state == SPINNING){
       auto &table_val = prediction_table_[inst.pc];
       table_val.confidence_++;
-      if(table_val.confidence_ >= 4){
+      if(table_val.confidence_ >= 1){
         table_val.is_spinning_ = true;
       }
     }else{

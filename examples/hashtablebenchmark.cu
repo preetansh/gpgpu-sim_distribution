@@ -18,18 +18,24 @@ typedef struct ht {
 	unsigned int num_buckets_;
 } ht_t;
 
+__device__ 
+size_t hash_fn(int val) {
+	static int seed = 13;
+	return (val ^ seed) * seed;
+}
+
 __global__ void
-benchmark_1_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	// for(size_t i = 0;i < blockDim.x;i++){
-		// printf("%d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, index, *total);
-		unsigned int ins_array_ind = index ;
+benchmark_1_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total, int num_to_process) {
+	int index = (blockIdx.x * blockDim.x + threadIdx.x)*num_to_process;
+	for(size_t i = 0;i < num_to_process;i++){
+		unsigned int ins_array_ind = index + i;
+		// printf("inserting %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, ins_array_ind, *total);
 		if(ins_array_ind >= *total){
 			// printf("too big %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, index, *total);
 			return;
 		}
 		// printf("going in %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, index, *total);
-		unsigned int hash_val = to_insert[ins_array_ind].val_ % hashtable->num_buckets_;
+		unsigned int hash_val = hash_fn(to_insert[ins_array_ind].val_) % hashtable->num_buckets_;
 		int *lock = &(hashtable->locks_[hash_val]);
 
 		volatile bool done = false;
@@ -49,20 +55,21 @@ benchmark_1_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total) {
 				atomicExch(lock, 0);
 			}
 		}
+		// printf("inserted %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, ins_array_ind, *total);
 		// printf("done with %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, index, *total);
-	// }
+	}
 }
 
 __global__ void
-checker_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total, bool *found) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	// for(size_t i = 0;i < *total;i++){
-		unsigned int ins_array_ind = index;
+checker_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total, bool *found, int num_to_process) {
+	int index = (blockIdx.x * blockDim.x + threadIdx.x)*num_to_process;
+	for(size_t i = 0;i < num_to_process;i++){
+		unsigned int ins_array_ind = index + i;
 		// printf("checking %d %d %d %d %d\n", blockIdx.x , blockDim.x , threadIdx.x, index, *total);
 		if(ins_array_ind >= *total){
 			return;
 		}
-		unsigned int hash_val = to_insert[ins_array_ind].val_ % hashtable->num_buckets_;
+		unsigned int hash_val = hash_fn(to_insert[ins_array_ind].val_) % hashtable->num_buckets_;
 
 		int looking_for = to_insert[ins_array_ind].val_;
 		ht_node_t *node = hashtable->buckets_[hash_val];
@@ -71,11 +78,11 @@ checker_kernel(ht_t* hashtable, ht_node_t *to_insert, int* total, bool *found) {
 			if(node->val_ == looking_for){
 				found[ins_array_ind] = true;
 				// printf("found %d\n", looking_for);
-				return;
+				break;
 			}
 			node = node->next_;
 		}
-	// }
+	}
 }
 
 
@@ -97,7 +104,7 @@ int main(int argc, char *argv[])
 	// 	total[i] =  0;
 	// }
 
-	const int num_buckets = 24;
+	const int num_buckets = 10;
 
 	ht_t host_ht;
 	host_ht.num_buckets_ = num_buckets;
@@ -123,7 +130,7 @@ int main(int argc, char *argv[])
 	// int array[] = {0,1,2,3,4,5,6,7,8,9};
 	std::vector<int> insert_vals;
 	// insert_vals.insert(insert_vals.begin(), array,&array[sizeof(array)/ sizeof(*array)]);
-	for(int i= 0;i < 500;i++){
+	for(int i= 0;i < 100000;i++){
 		insert_vals.push_back(i);
 	}
 
@@ -145,10 +152,11 @@ int main(int argc, char *argv[])
 	cudaMemcpy(total, &size, sizeof(int), cudaMemcpyHostToDevice);
 
 	// compute number of blocks and threads per block
-    const int threadsPerBlock = 512;
-    const int blocks = 1;
+    const int threadsPerBlock = 256;
+    const int blocks = 10;
 
-	benchmark_1_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, total);
+	benchmark_1_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, 
+		total, insert_nodes.size()/threadsPerBlock + 1);
 
 	cudaDeviceSynchronize();
     // cudaMemcpy(finished, device_finished, warpsNum * sizeof(int), cudaMemcpyDeviceToHost);
@@ -163,7 +171,8 @@ int main(int argc, char *argv[])
 
 	cudaMalloc(&dev_found_array, sizeof(bool)*insert_vals.size());
 	cudaMemset(dev_found_array, 0, sizeof(bool)*insert_vals.size());
-	checker_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, total, dev_found_array);
+	checker_kernel<<<blocks, threadsPerBlock>>>(hashtable, to_insert, total, dev_found_array,
+		insert_nodes.size()/threadsPerBlock + 1);
 
 	cudaDeviceSynchronize();
 	cudaMemcpy(found_array, dev_found_array, sizeof(bool)*insert_vals.size(), cudaMemcpyDeviceToHost);
