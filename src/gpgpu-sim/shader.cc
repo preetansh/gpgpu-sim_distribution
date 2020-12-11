@@ -1014,7 +1014,7 @@ void shader_core_ctx::issue_warp(register_set &pipe_reg_set,
 
   // set to backoff if spinning
   if (spin_state == SPINNING) {
-    m_warp[warp_id]->set_back_off(0);
+    m_warp[warp_id]->set_back_off(10000);
   }
 
 

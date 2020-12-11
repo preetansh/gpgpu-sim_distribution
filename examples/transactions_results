@@ -1,0 +1,66 @@
+Transaction 1 code: all SM's active in GTX480
+#define NUM_ACCOUNTS 1000000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 850319
+10 backoff - 855502
+100 backoff - 850044
+1000 backoff - 858844
+10000 backoff - 880685
+
+#define NUM_ACCOUNTS 500000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 705798
+10 backoff - 703262
+100 backoff - 704965
+1000 backoff - 709989
+10000 backoff - 732653
+
+#define NUM_ACCOUNTS 250000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 514837
+10 backoff - 511706
+100 backoff - 704965
+1000 backoff - 709989
+10000 backoff - 732653
+
+
+#define NUM_ACCOUNTS 125000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 279604
+
+
+#define NUM_ACCOUNTS 62500
+#define NUM_TRANSACTIONS 122880
+0 backoff - 281184
+
+#define NUM_ACCOUNTS 30000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 291976
+
+#define NUM_ACCOUNTS 15000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 315658
+
+#define NUM_ACCOUNTS 8000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 359742
+10 backoff - 357260
+100 backoff - 356908
+1000 backoff - 351219
+10000 backoff - 412258
+
+#define NUM_ACCOUNTS 4000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 455214
+10 backoff - 456549
+100 backoff - 443083
+1000 backoff - 405197
+10000 backoff - 487553
+
+#define NUM_ACCOUNTS 2000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 728949
+10 backoff - 720579
+100 backoff - 670330
+1000 backoff - 529598
+10000 backoff - 674377
