@@ -1,0 +1,135 @@
+Transaction 1 code: all SM's active in GTX480
+#define NUM_ACCOUNTS 1000000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 850319
+10 backoff - 855502
+100 backoff - 850044
+1000 backoff - 858844
+10000 backoff - 880685
+
+#define NUM_ACCOUNTS 500000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 705798
+10 backoff - 703262
+100 backoff - 704965
+1000 backoff - 709989
+10000 backoff - 732653
+
+#define NUM_ACCOUNTS 250000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 514837
+10 backoff - 511706
+100 backoff - 704965
+1000 backoff - 709989
+10000 backoff - 732653
+
+
+#define NUM_ACCOUNTS 125000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 279604
+
+
+#define NUM_ACCOUNTS 62500
+#define NUM_TRANSACTIONS 122880
+0 backoff - 281184
+
+#define NUM_ACCOUNTS 30000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 291976
+
+#define NUM_ACCOUNTS 15000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 315658
+
+#define NUM_ACCOUNTS 8000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 359742
+10 backoff - 357260
+100 backoff - 356908
+1000 backoff - 351219
+10000 backoff - 412258
+
+#define NUM_ACCOUNTS 4000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 455214
+10 backoff - 456549
+100 backoff - 443083
+1000 backoff - 405197
+10000 backoff - 487553
+
+#define NUM_ACCOUNTS 2000
+#define NUM_TRANSACTIONS 122880
+0 backoff - 728949
+10 backoff - 720579
+100 backoff - 670330
+1000 backoff - 529598
+10000 backoff - 674377
+
+prediction table results
+
+#define NUM_ACCOUNTS 8000
+#define NUM_TRANSACTIONS 122880
+
+1 confidence
+10 backoff - 360570
+100 backoff - 357132
+1000 backoff - 349809
+10000 backoff - 351957
+
+2 confidence
+10 backoff - 357634
+100 backoff - 355522
+1000 backoff - 349062
+10000 backoff - 343665
+
+4 confidence
+10 backoff - 357833
+100 backoff - 356339
+1000 backoff - 348168
+10000 backoff - 345456
+
+
+#define NUM_ACCOUNTS 4000
+#define NUM_TRANSACTIONS 122880
+
+1 confidence
+10 backoff - 451450
+100 backoff - 444921
+1000 backoff - 410828
+10000 backoff - 390909
+
+2 confidence
+10 backoff - 454164
+100 backoff - 445281
+1000 backoff - 413083
+10000 backoff - 393057
+50000 backoff - 477911
+
+4 confidence
+10 backoff - 453909
+100 backoff - 445323
+1000 backoff - 410855
+10000 backoff - 395882
+
+
+#define NUM_ACCOUNTS 2000
+#define NUM_TRANSACTIONS 122880
+
+1 confidence
+10 backoff - 712921
+100 backoff - 681826
+1000 backoff - 534951
+10000 backoff - 497152
+
+2 confidence
+10 backoff - 727104
+100 backoff - 693430
+1000 backoff - 539118
+10000 backoff - 501200
+
+4 confidence
+10 backoff - 726798
+100 backoff - 670141
+1000 backoff - 530382
+10000 backoff - 500530
+
