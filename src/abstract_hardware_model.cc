@@ -1221,7 +1221,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, spin_state_t &spin_state) {
     }
 
     // printf("BACK BRANCH ON %p with CONFIDENCE %d\n", inst.pc, prediction_table_[inst.pc].confidence_);
-    const size_t threshold = 4;
+    const size_t threshold = 1;
     if(spin_state == SPINNING){
       auto &table_val = prediction_table_[inst.pc];
       table_val.confidence_++;

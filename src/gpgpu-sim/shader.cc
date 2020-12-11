@@ -994,7 +994,7 @@ void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst, spin_state_t &spin_
   if(inst.m_is_sib){
     // do spin backoff??
     // printf("BACKING OFF %d\n", inst.warp_id());
-    m_warp[inst.warp_id()]->set_back_off(10);
+    m_warp[inst.warp_id()]->set_back_off(10000);
     inst.m_is_sib = false;
   }
 }
